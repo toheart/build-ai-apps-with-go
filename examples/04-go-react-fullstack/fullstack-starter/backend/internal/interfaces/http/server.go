@@ -18,7 +18,12 @@ type Server struct {
 	server *http.Server
 }
 
-func New(cfg conf.Config, logger *slog.Logger, sampleHandler *handler.SampleHandler) *Server {
+func New(
+	cfg conf.Config,
+	logger *slog.Logger,
+	sampleHandler *handler.SampleHandler,
+	conversationHandler *handler.ConversationHandler,
+) *Server {
 	if cfg.App.RunMode == "prod" {
 		gin.SetMode(gin.ReleaseMode)
 	}
@@ -31,6 +36,7 @@ func New(cfg conf.Config, logger *slog.Logger, sampleHandler *handler.SampleHand
 
 	api := router.Group("/api/v1")
 	sampleHandler.RegisterRoutes(api)
+	conversationHandler.RegisterRoutes(api)
 
 	server := &http.Server{
 		Addr:         cfg.HTTP.Address(),

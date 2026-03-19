@@ -3,6 +3,7 @@ package wire
 import (
 	"log/slog"
 
+	appchat "github.com/toheart/build-ai-apps-with-go/examples/04-go-react-fullstack/fullstack-starter/backend/internal/application/chat"
 	appsample "github.com/toheart/build-ai-apps-with-go/examples/04-go-react-fullstack/fullstack-starter/backend/internal/application/sample"
 	"github.com/toheart/build-ai-apps-with-go/examples/04-go-react-fullstack/fullstack-starter/backend/internal/infrastructure/storage/memory"
 	httpserver "github.com/toheart/build-ai-apps-with-go/examples/04-go-react-fullstack/fullstack-starter/backend/internal/interfaces/http"
@@ -16,5 +17,9 @@ func BuildHTTPServer(cfg conf.Config, logger *slog.Logger) *httpserver.Server {
 	service := appsample.NewService(repo)
 	sampleHandler := handler.NewSampleHandler(service)
 
-	return httpserver.New(cfg, logger, sampleHandler)
+	conversationRepo := memory.NewConversationRepository()
+	chatService := appchat.NewService(conversationRepo, memory.NewRuleBasedResponder())
+	conversationHandler := handler.NewConversationHandler(chatService)
+
+	return httpserver.New(cfg, logger, sampleHandler, conversationHandler)
 }
